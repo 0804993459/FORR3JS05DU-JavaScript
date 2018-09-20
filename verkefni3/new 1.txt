@@ -1,0 +1,50 @@
+1)
+Útskýrðu Prototype kerfið í JavaScript. Hver er munurinn á því t.d. og ObjectOriented
+forritun (OOP) í öðrum málum eins og Python? (1%)
+
+munurinn aðalega er að proto er einfaldara öflugara og býr til minni redundrant kóða
+hinsvegar er python koði miklu læsilegri og skiljanlegur
+
+2)
+Útskýrðu eins vel og þú getur hvað gerist í kóðanum(1%)
+
+prototype setur nýja functionið fyrir utan Book()
+að þegar þú býrð til eitthvað með book þá ertu ekki að
+búa til auka inntak af get isbn
+
+3)
+Classical Model (function constructor and prototype) (2%)
+
+function Geymflaug(hraði ) 
+{
+	this.speed = hraði;
+	this.life= 10;
+	
+}
+
+let Claymore = new Geymflaug(2);
+let Zion = new Geymflaug(5);
+let Annihilator = new Geymflaug(1);
+
+Geymflaug.prototype.fly = function () {
+	this.speed++;
+};
+
+//fatta ekkki skýringuna við D) lið
+
+4)
+Gerðu það sama og í lið 3 en með notkun class (ES2015). Notaðu constructor,
+get, set, static, extends, super, mix-ins eftir þörfum. (2%)
+
+class Geymflaug {
+  constructor(speed) 
+  {
+    this.speed = speed;
+	this.life= 10;
+  }
+}
+
+let Claymore = new Geymflaug(2);
+let Zion = new Geymflaug(5);
+let Annihilator = new Geymflaug(1);
+
