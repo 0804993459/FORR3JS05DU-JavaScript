@@ -1,0 +1,379 @@
+// define variable for ball count paragraph
+"use strict";
+
+
+var para = document.querySelector('p');
+var count = 0
+
+;
+
+// setup canvas
+
+var canvas = document.querySelector('canvas');
+var ctx = canvas.getContext('2d');
+
+var width = canvas.width = window.innerWidth;
+var height = canvas.height = window.innerHeight;
+
+let score = 0 ;
+let SecondBall = true;
+let YouFail = false;
+
+
+
+//breytt
+//function sem skilar svörtu eða hvítu fer eftir
+//hort að count sé oddatala eða ekki
+function OddEven()
+{
+if (count % 2 === 0) 
+    {
+      return 'black';
+    }
+  else
+    {
+      return 'white';
+    }
+}
+
+function Square() {
+    this.paddleHeight = 125;
+    this.paddleWidth = 75;
+    this.paddleX = (canvas.width-this.paddleWidth)/2;
+    this.paddleY = (canvas.height-this.paddleHeight)/2;
+}
+
+Square.prototype.DrawIt = function() 
+{
+    ctx.beginPath();
+    ctx.rect(this.paddleX, this.paddleY, this.paddleWidth, this.paddleHeight);
+    ctx.fill();
+    ctx.closePath();
+};
+
+Square.prototype.collisionDetect = function() 
+{
+  for(var j = 0; j < balls.length; j++) {
+    if( balls[j].exists ) {
+
+      if (canvas.width > this.paddleX && canvas.width < this.paddleX+this.paddleHeight && canvas.height > this.paddleY && canvas < this.paddleY+this.paddleWidth) 
+      {
+            balls[j].velX = 0;
+            balls[j].velY = 0;
+      }
+    }
+  }
+};
+
+// function to generate random number
+
+function random(min,max) {
+  var num = Math.floor(Math.random()*(max-min)) + min;
+  return num;
+}
+
+// define shape constructor
+
+function Shape(x, y, velX, velY, exists) {
+  this.x = x;
+  this.y = y;
+  this.velX = velX;
+  this.velY = velY;
+  this.exists = exists;
+}
+
+// define Ball constructor, inheriting from Shape
+
+function Ball(x, y, velX, velY, exists, color, size) {
+  Shape.call(this, x, y, velX, velY, exists);
+
+  this.color = color;
+  this.size = size;
+}
+
+Ball.prototype = Object.create(Shape.prototype);
+Ball.prototype.constructor = Ball;
+
+// define ball draw method
+
+Ball.prototype.draw = function() {
+  ctx.beginPath();
+  ctx.fillStyle = this.color;
+  ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+  ctx.fill();
+};
+
+// define ball update method
+
+Ball.prototype.update = function() {
+  if((this.x + this.size) >= width) {
+    this.velX = -(this.velX);
+  }
+
+  if((this.x - this.size) <= 0) {
+    this.velX = -(this.velX);
+  }
+
+  if((this.y + this.size) >= height) {
+    this.velY = -(this.velY);
+  }
+
+  if((this.y - this.size) <= 0) {
+    this.velY = -(this.velY);
+  }
+
+  
+
+  this.x += this.velX;
+  this.y += this.velY;
+};
+
+/*
+Ball.prototype.collisionDetect = function() {
+    for(var j = 0; j < balls.length; j++) {
+    if( balls[j].exists ) {
+      var dx = this.x - balls[j].x;
+      var dy = this.y - balls[j].y;
+      var distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < this.size + balls[j].size ) {
+        //getur bara borðað bolta í öfugum lit við bakgrunnin
+        
+         
+      }
+    }
+  }
+};
+*/
+
+// define EvilCircle constructor, inheriting from Shape
+
+function EvilCircle(x, y, exists) {
+  Shape.call(this, x, y, 20, 20, exists);
+
+  this.color = 'white';
+  this.size = 20;
+}
+
+EvilCircle.prototype = Object.create(Shape.prototype);
+EvilCircle.prototype.constructor = EvilCircle;
+
+
+// define EvilCircle draw method
+
+EvilCircle.prototype.draw = function() {
+  ctx.beginPath();
+  ctx.strokeStyle = this.color;
+  ctx.fillStyle = "black";
+  ctx.lineWidth = 3;
+  ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.stroke();
+};
+
+
+// define EvilCircle checkBounds method
+
+EvilCircle.prototype.checkBounds = function() {
+  if((this.x + this.size) >= width) {
+    this.x -= this.size;
+  }
+
+  if((this.x - this.size) <= 0) {
+    this.x += this.size;
+  }
+
+  if((this.y + this.size) >= height) {
+    this.y -= this.size;
+  }
+
+  if((this.y - this.size) <= 0) {
+    this.y += this.size;
+  }
+  
+};
+
+// define EvilCircle setControls method
+
+//breytt
+EvilCircle.prototype.setControls = function() {
+  var _this = this;
+
+  //onmousemove útskýrir sjálfan sig
+  //þegar músin hreyfist þá gerist þetta
+  window.onmousemove = function(e) {
+    //_this bendir á boltan til af fá upply´singar frá honum
+    //e er músinn pageXY eru að ná í hnitin hennar
+    //-110 og -5 til að laga staðsetninguna
+
+    _this.x = e.pageX-5;
+    _this.y = e.pageY-150;
+
+  };
+  //fékk kóðan hér um hvernig ég fékk boltan til að elta músina
+  //https://www.quora.com/How-do-you-make-something-follow-the-cursor-in-JavaScript
+};
+
+// define EvilCircle collision detection
+
+EvilCircle.prototype.collisionDetect = function() {
+  for(var j = 0; j < balls.length; j++) {
+    if( balls[j].exists ) {
+      var dx = this.x - balls[j].x;
+      var dy = this.y - balls[j].y;
+      var distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < this.size + balls[j].size ) {
+        //getur bara borðað bolta í öfugum lit við bakgrunnin
+        if (balls[j].color != OddEven()) 
+        {
+          if (balls[j].color=="green") 
+          {
+            YouFail = true;
+          }
+          else 
+          {
+            balls[j].exists = false;
+            count--;
+            para.textContent = 'Ball count: ' + count;
+            score += 5;
+            this.size+=2;
+          }
+        } 
+      }
+    }
+  }
+};
+
+
+
+// define array to store balls
+
+var balls = [];
+
+// define loop that keeps drawing the scene constantly
+
+var evil = new EvilCircle(random(0,width), random(0,height), true);
+evil.setControls();
+
+
+let MrGreen = new Ball(
+      random(0 + 40,width - 40),
+      random(0 + 40,height - 40),
+      random(-10,10),
+      random(-10,10),
+      true,
+      "green",
+      40
+    );
+balls.push(MrGreen);
+
+let Wall = new Square();
+
+function loop() {
+  //breytt
+  //breytir bakgrunnninum eftir hvort það sé slétt tala af boltum eftir
+  ctx.fillStyle = OddEven();
+  ctx.fillRect(0,0,width,height);
+
+  
+
+  while(balls.length < random(16,25)) {
+    var size = random(12,20);
+    var ball = new Ball(
+      // ball position always drawn at least one ball width
+      // away from the adge of the canvas, to avoid drawing errors
+      random(0 + size,width - size),
+      random(0 + size,height - size),
+      random(-7,7),
+      random(4,12),
+      true,
+      OddEven(),
+      size
+    );
+    balls.push(ball);
+    count++;
+    para.textContent = 'Ball count: ' + count;
+  }
+
+  if (SecondBall && count <= 10) 
+  {
+    var MrGreen = new Ball(
+      random(0 + 40,width - 40),
+      random(0 + 40,height - 40),
+      random(-10,10),
+      random(-10,10),
+      true,
+      "green",
+      40
+    );
+  balls.push(MrGreen);
+  SecondBall =false;
+
+  }
+  
+
+  for(var i = 0; i < balls.length; i++) {
+    if(balls[i].exists) {
+      balls[i].draw();
+      balls[i].update();
+      //balls[i].collisionDetect();
+    }
+  }
+
+  evil.draw();
+  evil.checkBounds();
+  evil.collisionDetect();
+
+  Wall.DrawIt();
+  Wall.collisionDetect();
+
+//breytt
+//til að stoppa leikinn
+  if (count!==0 && YouFail === false) 
+  {
+    requestAnimationFrame(loop);
+  }
+  else
+  {
+    ctx.font="200px Georgia";
+    if (YouFail) 
+    {
+      ctx.fillStyle = "red";
+      ctx.fillText("you lose",100,300); 
+    }
+    else
+    {
+      ctx.fillStyle = "blue";
+      score += 20;
+      ctx.fillText("YOU WIN",100,300);
+    }
+    ctx.font="100px Georgia";
+    ctx.fillText("your score:"+score,200,400);
+  }
+  
+}
+
+
+
+loop();
+
+
+/*
+note fyrir sjálfan
+
+litir breytast eftir að þú borðarð bolta*
+
+getur bara borðað áhveðna bolta*
+
+bolltin þinn eltir músina*
+
+Grænn bolti sem þú mátt ekki snerta*
+
+kassi sem birtist  í miðjuni í byrjun leiks*
+boltar skoppa af þessum kassa
+random hvort boltarnir hægja á sér eða auka hraða
+
+breyta count í score +5 sting fyrir að ná öllum boltum*
+
+*/
