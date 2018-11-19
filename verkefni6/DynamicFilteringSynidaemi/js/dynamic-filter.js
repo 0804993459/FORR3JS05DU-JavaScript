@@ -4,16 +4,52 @@ var myImage = new Image(100, 200,'stone');
 myImage.src = '55181940.jpg';
 document.body.appendChild(myImage);
 */
-var image = new Array(20);
+var image = [];
 image[0] = new Image(200,200);
 image[0].src='stonebob.jpg';
-image[0].tag = 'stone sponge';
+image[0].id = 'stone spongebob';
 image[1] = new Image(200,200);
 image[1].src='derpbob.jpg';
-image[1].tag = 'derp sponge';
+image[1].id = 'derp spongebob';
+image[2] = new Image(200,200);
+image[2].src='meme.jpg';
+image[2].id = 'javascrip meme';
 
 document.body.appendChild(image[0]);
 document.body.appendChild(image[1]);
+document.body.appendChild(image[2]);
+
+
+function findMatches(wordToMatch, image) {
+  return image.filter(place => {
+    // here we need to figure out if the id or state matches what was searched
+    const regex = new RegExp(wordToMatch, 'gi');
+    return place.id.match(regex)
+  });
+}
+
+function displayMatches() {
+  const matchArray = findMatches(this.value, image);
+  const html = matchArray.map(place => {
+    const regex = new RegExp(this.value, 'gi');
+    const idName = place.id.replace(regex, `<span class="hl">${this.value}</span>`);
+  
+    return `
+      <li>
+        <span class="name">${idName},</span>
+      </li>
+    `;
+  }).join('');
+  suggestions.innerHTML = html;
+}
+
+const searchInput = document.querySelector('.search');
+const suggestions = document.querySelector('.suggestions');
+
+searchInput.addEventListener('change', displayMatches);
+searchInput.addEventListener('keyup', displayMatches);
+
+
 
 
 
